@@ -26,7 +26,7 @@ body {
     <script>
 var Daniel = {
     colour: "red",
-    imageID: "daniel",
+    imageID: "lcd_tux",
     smoothedVol: 0,
 };
 
@@ -112,7 +112,7 @@ function drawVisualizer(x, y, width, height, person) {
     person.smoothedVol *= 0.80;
     person.smoothedVol += 0.20 * curVol;
 
-    canvasCtx.lineTo(canvas.width, canvas.height / 2);
+    canvasCtx.lineTo(width, height / 2);
     canvasCtx.stroke();
 
 
@@ -138,8 +138,8 @@ function draw() {
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
 
-    drawVisualizer(0, 0, WIDTH, HEIGHT/2, Ben);
-    drawVisualizer(0, HEIGHT/2, WIDTH, HEIGHT/2, Daniel);
+    drawVisualizer(0, 0, WIDTH/2, HEIGHT, Ben);
+    drawVisualizer(WIDTH/2, 0, WIDTH/2, HEIGHT, Daniel);
 
 
 };
