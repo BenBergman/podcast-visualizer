@@ -16,8 +16,10 @@ body {
 <audio id="soundz2" src="untitled.wav" autoplay></audio>
 <canvas id="visualizer"></canvas>
 <div style="display:none;">
-  <img id="lcd_tux" src="lcd_tux.jpg"
-       width="200" height="200">
+  <img id="lcd_tux" src="lcd_tux.jpg">
+</div>
+<div style="display:none;">
+  <img id="daniel" src="9ef5475a-2e11-439b-b68e-2e1977e6337f.jpg">
 </div>
 
 
@@ -65,18 +67,29 @@ var HEIGHT = canvas.height;
 canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
 
 var smoothedVol = 0;
-var scaledVol = 0;
+
+var Daniel = {
+    colour: "red",
+    imageID: "daniel",
+    smoothedVol: 0,
+};
+
+var Ben = {
+    colour: "green",
+    imageID: "lcd_tux",
+    smoothedVol: 0,
+};
 
 // From http://rosettacode.org/wiki/Map_range#JavaScript
 var mapRange = function(from, to, s) {
     return to[0] + (s - from[0]) * (to[1] - to[0]) / (from[1] - from[0]);
 };
 
-function drawVisualizer(x, y, width, height, colour, dataArray) {
+function drawVisualizer(x, y, width, height, dataArray, person) {
     canvasCtx.translate(x, y);
 
     canvasCtx.lineWidth = 2;
-    canvasCtx.strokeStyle = colour;
+    canvasCtx.strokeStyle = person.colour;
     canvasCtx.beginPath();
 
     var sliceWidth = width * 1.0 / bufferLength;
@@ -103,11 +116,24 @@ function drawVisualizer(x, y, width, height, colour, dataArray) {
     curVol /= bufferLength;
     curVol = Math.sqrt(curVol);
 
-    smoothedVol *= 0.80;
-    smoothedVol += 0.20 * curVol;
+    person.smoothedVol *= 0.80;
+    person.smoothedVol += 0.20 * curVol;
 
     canvasCtx.lineTo(canvas.width, canvas.height / 2);
     canvasCtx.stroke();
+
+
+
+    var image = document.getElementById(person.imageID);
+
+    canvasCtx.drawImage(image, 0, 0);
+    canvasCtx.globalCompositeOperation = "saturation";
+    console.log(person.smoothedVol);
+    canvasCtx.fillStyle = "hsl(0," + mapRange([0.01, 0.1], [0, 100], person.smoothedVol) + "%,50%)";  // saturation at 100%
+    canvasCtx.fillRect(0,0,image.width,image.height);  // apply the comp filter
+    canvasCtx.globalCompositeOperation = "source-over";  // restore default comp
+
+
 
     canvasCtx.setTransform(1, 0, 0, 1, 0, 0);
 }
@@ -122,18 +148,10 @@ function draw() {
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
 
-    drawVisualizer(0, 0, WIDTH, HEIGHT/2, "red", dataArray);
-    drawVisualizer(0, HEIGHT/2, WIDTH, HEIGHT/2, "orange", dataArray2);
+    drawVisualizer(0, 0, WIDTH, HEIGHT/2, dataArray, Ben);
+    drawVisualizer(0, HEIGHT/2, WIDTH, HEIGHT/2, dataArray2, Daniel);
 
 
-    var lcd_tux = document.getElementById('lcd_tux');
-
-    canvasCtx.drawImage(lcd_tux, 0, 0);
-    canvasCtx.globalCompositeOperation = "saturation";
-    console.log(smoothedVol);
-    canvasCtx.fillStyle = "hsl(0," + mapRange([0.01, 0.1], [0, 100], smoothedVol) + "%,50%)";  // saturation at 100%
-    canvasCtx.fillRect(0,0,lcd_tux.width,lcd_tux.height);  // apply the comp filter
-    canvasCtx.globalCompositeOperation = "source-over";  // restore default comp
 };
 
 draw();
