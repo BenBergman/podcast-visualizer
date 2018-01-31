@@ -72,27 +72,21 @@ var mapRange = function(from, to, s) {
     return to[0] + (s - from[0]) * (to[1] - to[0]) / (from[1] - from[0]);
 };
 
-function draw() {
-    drawVisual = requestAnimationFrame(draw);
-
-    analyser.getFloatTimeDomainData(dataArray);
-    analyser2.getFloatTimeDomainData(dataArray2);
-
-    canvasCtx.fillStyle = 'rgb(100%, 100%, 100%)';
-    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+function drawVisualizer(x, y, width, height, colour, dataArray) {
+    canvasCtx.translate(x, y);
 
     canvasCtx.lineWidth = 2;
-    canvasCtx.strokeStyle = "green";
+    canvasCtx.strokeStyle = colour;
     canvasCtx.beginPath();
 
-    var sliceWidth = WIDTH * 1.0 / bufferLength;
+    var sliceWidth = width * 1.0 / bufferLength;
     var x = 0;
 
     var curVol = 0;
 
     for (var i = 0; i < bufferLength; i++) {
         var v = dataArray[i] * 200;
-        var y = v + HEIGHT / 4;
+        var y = v + height / 2;
 
         if (i === 0) {
             canvasCtx.moveTo(x, y);
@@ -112,34 +106,24 @@ function draw() {
     smoothedVol *= 0.80;
     smoothedVol += 0.20 * curVol;
 
-    canvasCtx.lineTo(canvas.width, canvas.height / 4);
+    canvasCtx.lineTo(canvas.width, canvas.height / 2);
     canvasCtx.stroke();
 
+    canvasCtx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+function draw() {
+    drawVisual = requestAnimationFrame(draw);
+
+    analyser.getFloatTimeDomainData(dataArray);
+    analyser2.getFloatTimeDomainData(dataArray2);
+
+    canvasCtx.fillStyle = 'rgb(100%, 100%, 100%)';
+    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
 
-    canvasCtx.strokeStyle = "blue";
-
-    canvasCtx.beginPath();
-
-    sliceWidth = WIDTH * 1.0 / bufferLength2;
-    x = 0;
-
-    for (var i = 0; i < bufferLength; i++) {
-        var v = dataArray2[i] * 200;
-        var y = v + HEIGHT / 4 * 3;
-
-        if (i === 0) {
-            canvasCtx.moveTo(x, y);
-        } else {
-            canvasCtx.lineTo(x, y);
-        }
-
-        x += sliceWidth;
-    }
-
-    canvasCtx.lineTo(canvas.width, canvas.height / 4 * 3);
-    canvasCtx.stroke();
-
+    drawVisualizer(0, 0, WIDTH, HEIGHT/2, "red", dataArray);
+    drawVisualizer(0, HEIGHT/2, WIDTH, HEIGHT/2, "orange", dataArray2);
 
 
     var lcd_tux = document.getElementById('lcd_tux');
