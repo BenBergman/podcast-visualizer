@@ -92,7 +92,7 @@ function drawVisualizer(x, y, width, height, person) {
 
     for (var i = 0; i < person.bufferLength; i++) {
         var v = person.dataArray[i] * 200;
-        var y = v + height / 2;
+        var y = v + height / 4 * 3;
 
         if (i === 0) {
             canvasCtx.moveTo(x, y);
@@ -112,18 +112,19 @@ function drawVisualizer(x, y, width, height, person) {
     person.smoothedVol *= 0.80;
     person.smoothedVol += 0.20 * curVol;
 
-    canvasCtx.lineTo(width, height / 2);
+    canvasCtx.lineTo(width, height / 4 * 3);
     canvasCtx.stroke();
 
 
 
     var image = document.getElementById(person.imageID);
 
-    canvasCtx.drawImage(image, 0, 0);
+    var w = mapRange([0, 0.1], [image.width * 0.75, image.width], person.smoothedVol);
+    var h = mapRange([0, 0.1], [image.height * 0.75, image.height], person.smoothedVol);
+    canvasCtx.drawImage(image, width/2 - w/2, 250 - w/2, w, h);
     canvasCtx.globalCompositeOperation = "saturation";
-    console.log(person.smoothedVol);
     canvasCtx.fillStyle = "hsl(0," + mapRange([0.01, 0.1], [0, 100], person.smoothedVol) + "%,50%)";  // saturation at 100%
-    canvasCtx.fillRect(0,0,image.width,image.height);  // apply the comp filter
+    canvasCtx.fillRect(width/2 - w/2, 250 - w/2, w, h);  // apply the comp filter
     canvasCtx.globalCompositeOperation = "source-over";  // restore default comp
 
 
