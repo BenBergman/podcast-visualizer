@@ -24,33 +24,38 @@ body {
 
 
     <script>
+var Daniel = {
+    colour: "red",
+    imageID: "daniel",
+    smoothedVol: 0,
+};
+
+var Ben = {
+    colour: "green",
+    imageID: "lcd_tux",
+    smoothedVol: 0,
+};
+
+
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 
+function setupAudioAnalyserForPerson(person, trackID) {
+    person.analyser = audioCtx.createAnalyser();
 
-var analyser = audioCtx.createAnalyser();
+    person.audioElement = document.getElementById(trackID);
+    person.source = audioCtx.createMediaElementSource(person.audioElement);
+    person.source.connect(person.analyser);
+    person.analyser.connect(audioCtx.destination);
 
-var audioElement = document.getElementById("soundz");
-var source = audioCtx.createMediaElementSource(audioElement);
-source.connect(analyser);
-analyser.connect(audioCtx.destination);
+    person.analyser.fftSize = 2048;
+    person.bufferLength = person.analyser.frequencyBinCount;
+    person.dataArray = new Float32Array(person.bufferLength);
+}
 
-analyser.fftSize = 2048;
-var bufferLength = analyser.frequencyBinCount;
-var dataArray = new Float32Array(bufferLength);
+setupAudioAnalyserForPerson(Ben, "soundz");
+setupAudioAnalyserForPerson(Daniel, "soundz2");
 
-
-
-var analyser2 = audioCtx.createAnalyser();
-
-var audioElement2 = document.getElementById("soundz2");
-var source2 = audioCtx.createMediaElementSource(audioElement2);
-source2.connect(analyser2);
-analyser2.connect(audioCtx.destination);
-
-analyser2.fftSize = 2048;
-var bufferLength2 = analyser.frequencyBinCount;
-var dataArray2 = new Float32Array(bufferLength2);
 
 
 
@@ -66,39 +71,27 @@ var WIDTH = canvas.width;
 var HEIGHT = canvas.height;
 canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
 
-var smoothedVol = 0;
-
-var Daniel = {
-    colour: "red",
-    imageID: "daniel",
-    smoothedVol: 0,
-};
-
-var Ben = {
-    colour: "green",
-    imageID: "lcd_tux",
-    smoothedVol: 0,
-};
-
 // From http://rosettacode.org/wiki/Map_range#JavaScript
 var mapRange = function(from, to, s) {
     return to[0] + (s - from[0]) * (to[1] - to[0]) / (from[1] - from[0]);
 };
 
-function drawVisualizer(x, y, width, height, dataArray, person) {
+function drawVisualizer(x, y, width, height, person) {
+    person.analyser.getFloatTimeDomainData(person.dataArray);
+
     canvasCtx.translate(x, y);
 
     canvasCtx.lineWidth = 2;
     canvasCtx.strokeStyle = person.colour;
     canvasCtx.beginPath();
 
-    var sliceWidth = width * 1.0 / bufferLength;
+    var sliceWidth = width * 1.0 / person.bufferLength;
     var x = 0;
 
     var curVol = 0;
 
-    for (var i = 0; i < bufferLength; i++) {
-        var v = dataArray[i] * 200;
+    for (var i = 0; i < person.bufferLength; i++) {
+        var v = person.dataArray[i] * 200;
         var y = v + height / 2;
 
         if (i === 0) {
@@ -110,10 +103,10 @@ function drawVisualizer(x, y, width, height, dataArray, person) {
         x += sliceWidth;
 
 
-        curVol += dataArray[i] * dataArray[i];
+        curVol += person.dataArray[i] * person.dataArray[i];
     }
 
-    curVol /= bufferLength;
+    curVol /= person.bufferLength;
     curVol = Math.sqrt(curVol);
 
     person.smoothedVol *= 0.80;
@@ -141,15 +134,12 @@ function drawVisualizer(x, y, width, height, dataArray, person) {
 function draw() {
     drawVisual = requestAnimationFrame(draw);
 
-    analyser.getFloatTimeDomainData(dataArray);
-    analyser2.getFloatTimeDomainData(dataArray2);
-
     canvasCtx.fillStyle = 'rgb(100%, 100%, 100%)';
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
 
-    drawVisualizer(0, 0, WIDTH, HEIGHT/2, dataArray, Ben);
-    drawVisualizer(0, HEIGHT/2, WIDTH, HEIGHT/2, dataArray2, Daniel);
+    drawVisualizer(0, 0, WIDTH, HEIGHT/2, Ben);
+    drawVisualizer(0, HEIGHT/2, WIDTH, HEIGHT/2, Daniel);
 
 
 };
