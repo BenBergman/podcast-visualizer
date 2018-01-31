@@ -67,13 +67,18 @@ canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
 var smoothedVol = 0;
 var scaledVol = 0;
 
+// From http://rosettacode.org/wiki/Map_range#JavaScript
+var mapRange = function(from, to, s) {
+    return to[0] + (s - from[0]) * (to[1] - to[0]) / (from[1] - from[0]);
+};
+
 function draw() {
     drawVisual = requestAnimationFrame(draw);
 
     analyser.getFloatTimeDomainData(dataArray);
     analyser2.getFloatTimeDomainData(dataArray2);
 
-    canvasCtx.fillStyle = 'rgb(200, 200, 200)';
+    canvasCtx.fillStyle = 'rgb(100%, 100%, 100%)';
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
     canvasCtx.lineWidth = 2;
@@ -141,7 +146,8 @@ function draw() {
 
     canvasCtx.drawImage(lcd_tux, 0, 0);
     canvasCtx.globalCompositeOperation = "saturation";
-    canvasCtx.fillStyle = "hsl(0," + smoothedVol * 1000 + "%,50%)";  // saturation at 100%
+    console.log(smoothedVol);
+    canvasCtx.fillStyle = "hsl(0," + mapRange([0.01, 0.1], [0, 100], smoothedVol) + "%,50%)";  // saturation at 100%
     canvasCtx.fillRect(0,0,lcd_tux.width,lcd_tux.height);  // apply the comp filter
     canvasCtx.globalCompositeOperation = "source-over";  // restore default comp
 };
