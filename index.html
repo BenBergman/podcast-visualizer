@@ -8,31 +8,45 @@ body {
 
 }
 </style>
+<script src="CCapture.all.min.js"></script>
 </head>
 
 <body>
 
-<audio id="soundz" src="radioaudio.mp3" autoplay></audio>
-<audio id="soundz2" src="untitled.wav" autoplay></audio>
+<audio id="benAudio" src="Podcast 1 Ben.wav" autoplay></audio>
+<audio id="danielAudio" src="Podcast 1 Dan.wav" autoplay></audio>
+<audio id="mattAudio" src="Podcast 1 Matt.wav" autoplay></audio>
 <canvas id="visualizer"></canvas>
 <div style="display:none;">
-  <img id="lcd_tux" src="lcd_tux.jpg">
+  <img id="ben" src="lcd_tux.jpg">
 </div>
 <div style="display:none;">
-  <img id="daniel" src="9ef5475a-2e11-439b-b68e-2e1977e6337f.jpg">
+  <img id="daniel" src="daniel.png">
+</div>
+<div style="display:none;">
+  <img id="matt" src="lcd_tux.jpg">
 </div>
 
 
     <script>
 var Daniel = {
     colour: "red",
-    imageID: "lcd_tux",
+    imageID: "daniel",
+    trackID: "danielAudio",
     smoothedVol: 0,
 };
 
 var Ben = {
     colour: "green",
-    imageID: "lcd_tux",
+    imageID: "ben",
+    trackID: "benAudio",
+    smoothedVol: 0,
+};
+
+var Matt = {
+    colour: "blue",
+    imageID: "matt",
+    trackID: "mattAudio",
     smoothedVol: 0,
 };
 
@@ -40,10 +54,10 @@ var Ben = {
 var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 
-function setupAudioAnalyserForPerson(person, trackID) {
+function setupAudioAnalyserForPerson(person) {
     person.analyser = audioCtx.createAnalyser();
 
-    person.audioElement = document.getElementById(trackID);
+    person.audioElement = document.getElementById(person.trackID);
     person.source = audioCtx.createMediaElementSource(person.audioElement);
     person.source.connect(person.analyser);
     person.analyser.connect(audioCtx.destination);
@@ -53,8 +67,9 @@ function setupAudioAnalyserForPerson(person, trackID) {
     person.dataArray = new Float32Array(person.bufferLength);
 }
 
-setupAudioAnalyserForPerson(Ben, "soundz");
-setupAudioAnalyserForPerson(Daniel, "soundz2");
+setupAudioAnalyserForPerson(Ben);
+setupAudioAnalyserForPerson(Daniel);
+setupAudioAnalyserForPerson(Matt);
 
 
 
@@ -64,8 +79,8 @@ setupAudioAnalyserForPerson(Daniel, "soundz2");
 var canvas = document.getElementById("visualizer");
 var canvasCtx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = 1280;
+canvas.height = 720;
 
 var WIDTH = canvas.width;
 var HEIGHT = canvas.height;
@@ -132,6 +147,16 @@ function drawVisualizer(x, y, width, height, person) {
     canvasCtx.setTransform(1, 0, 0, 1, 0, 0);
 }
 
+// Create a capturer that exports a WebM video
+var capturer = new CCapture( {
+    format: 'png',
+    framerate: 30,
+    //verbose: true,
+    timeLimit: 10,
+} );
+
+//capturer.start();
+
 function draw() {
     drawVisual = requestAnimationFrame(draw);
 
@@ -139,12 +164,15 @@ function draw() {
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
 
-    drawVisualizer(0, 0, WIDTH/2, HEIGHT, Ben);
-    drawVisualizer(WIDTH/2, 0, WIDTH/2, HEIGHT, Daniel);
+    drawVisualizer(0, 0, WIDTH/3, HEIGHT, Matt);
+    drawVisualizer(WIDTH/3, 0, WIDTH/3, HEIGHT, Daniel);
+    drawVisualizer(WIDTH/3 * 2, 0, WIDTH/3, HEIGHT, Ben);
 
-
+    capturer.capture(canvas);
 };
 
 draw();
+
+
     </script>
 </body>
