@@ -18,13 +18,12 @@ body {
 <audio id="mattAudio" src="Podcast 1 Matt.wav" autoplay></audio>
 <canvas id="visualizer"></canvas>
 <div style="display:none;">
-  <img id="ben" src="lcd_tux.jpg">
-</div>
-<div style="display:none;">
+  <img id="ben" src="daniel.png">
+  <img id="ben-gray" src="daniel-gray.png">
   <img id="daniel" src="daniel.png">
-</div>
-<div style="display:none;">
-  <img id="matt" src="lcd_tux.jpg">
+  <img id="daniel-gray" src="daniel-gray.png">
+  <img id="matt" src="daniel.png">
+  <img id="matt-gray" src="daniel-gray.png">
 </div>
 
 
@@ -32,6 +31,7 @@ body {
 var Daniel = {
     colour: "red",
     imageID: "daniel",
+    imageIDGray: "daniel-gray",
     trackID: "danielAudio",
     smoothedVol: 0,
 };
@@ -39,6 +39,7 @@ var Daniel = {
 var Ben = {
     colour: "green",
     imageID: "ben",
+    imageIDGray: "ben-gray",
     trackID: "benAudio",
     smoothedVol: 0,
 };
@@ -46,6 +47,7 @@ var Ben = {
 var Matt = {
     colour: "blue",
     imageID: "matt",
+    imageIDGray: "matt-gray",
     trackID: "mattAudio",
     smoothedVol: 0,
 };
@@ -133,14 +135,16 @@ function drawVisualizer(x, y, width, height, person) {
 
 
     var image = document.getElementById(person.imageID);
+    var imageGray = document.getElementById(person.imageIDGray);
 
     var w = mapRange([0, 0.1], [image.width * 0.75, image.width], person.smoothedVol);
     var h = mapRange([0, 0.1], [image.height * 0.75, image.height], person.smoothedVol);
-    canvasCtx.drawImage(image, width/2 - w/2, 250 - w/2, w, h);
-    canvasCtx.globalCompositeOperation = "saturation";
-    canvasCtx.fillStyle = "hsl(0," + mapRange([0.01, 0.1], [0, 100], person.smoothedVol) + "%,50%)";  // saturation at 100%
-    canvasCtx.fillRect(width/2 - w/2, 250 - w/2, w, h);  // apply the comp filter
-    canvasCtx.globalCompositeOperation = "source-over";  // restore default comp
+    canvasCtx.drawImage(imageGray, width/2 - w/2, height/2 - h/2, w, h);
+    var saturation = mapRange([0.01, 0.1], [0, 1], person.smoothedVol);
+    saturation = Math.max(0, Math.min(1, saturation));
+    canvasCtx.globalAlpha = saturation;
+    canvasCtx.drawImage(image, width/2 - w/2, height/2 - h/2, w, h);
+    canvasCtx.globalAlpha = 1.0;
 
 
 
@@ -160,7 +164,7 @@ var capturer = new CCapture( {
 function draw() {
     drawVisual = requestAnimationFrame(draw);
 
-    canvasCtx.fillStyle = 'rgb(100%, 100%, 100%)';
+    canvasCtx.fillStyle = 'rgb(100, 100, 100)';
     canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
 
