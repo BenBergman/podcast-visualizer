@@ -18,12 +18,13 @@ body {
 <audio id="mattAudio" src="Podcast 1 Matt.wav" autoplay></audio>
 <canvas id="visualizer"></canvas>
 <div style="display:none;">
-  <img id="ben" src="daniel.png">
-  <img id="ben-gray" src="daniel-gray.png">
+  <img id="ben" src="ben.png">
+  <img id="ben-gray" src="ben-gray.png">
   <img id="daniel" src="daniel.png">
   <img id="daniel-gray" src="daniel-gray.png">
-  <img id="matt" src="daniel.png">
-  <img id="matt-gray" src="daniel-gray.png">
+  <img id="matt" src="matt.png">
+  <img id="matt-gray" src="matt-gray.png">
+  <img id="backdrop" src="backdrop.png">
 </div>
 
 
@@ -84,6 +85,9 @@ var canvasCtx = canvas.getContext("2d");
 canvas.width = 1280;
 canvas.height = 720;
 
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
 var WIDTH = canvas.width;
 var HEIGHT = canvas.height;
 canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -98,9 +102,9 @@ function drawVisualizer(x, y, width, height, person) {
 
     canvasCtx.translate(x, y);
 
-    canvasCtx.lineWidth = 2;
-    canvasCtx.strokeStyle = person.colour;
-    canvasCtx.beginPath();
+    //canvasCtx.lineWidth = 2;
+    //canvasCtx.strokeStyle = person.colour;
+    //canvasCtx.beginPath();
 
     var sliceWidth = width * 1.0 / person.bufferLength;
     var x = 0;
@@ -108,16 +112,16 @@ function drawVisualizer(x, y, width, height, person) {
     var curVol = 0;
 
     for (var i = 0; i < person.bufferLength; i++) {
-        var v = person.dataArray[i] * 200;
-        var y = v + height / 4 * 3;
+        //var v = person.dataArray[i] * 200;
+        //var y = v + height / 4 * 3;
 
-        if (i === 0) {
-            canvasCtx.moveTo(x, y);
-        } else {
-            canvasCtx.lineTo(x, y);
-        }
+        //if (i === 0) {
+            //canvasCtx.moveTo(x, y);
+        //} else {
+            //canvasCtx.lineTo(x, y);
+        //}
 
-        x += sliceWidth;
+        //x += sliceWidth;
 
 
         curVol += person.dataArray[i] * person.dataArray[i];
@@ -126,11 +130,11 @@ function drawVisualizer(x, y, width, height, person) {
     curVol /= person.bufferLength;
     curVol = Math.sqrt(curVol);
 
-    person.smoothedVol *= 0.80;
-    person.smoothedVol += 0.20 * curVol;
+    person.smoothedVol *= 0.90;
+    person.smoothedVol += 0.10 * curVol;
 
-    canvasCtx.lineTo(width, height / 4 * 3);
-    canvasCtx.stroke();
+    //canvasCtx.lineTo(width, height / 4 * 3);
+    //canvasCtx.stroke();
 
 
 
@@ -164,9 +168,8 @@ var capturer = new CCapture( {
 function draw() {
     drawVisual = requestAnimationFrame(draw);
 
-    canvasCtx.fillStyle = 'rgb(100, 100, 100)';
-    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
-
+    var backdrop = document.getElementById("backdrop");
+    canvasCtx.drawImage(backdrop, 0, 0, WIDTH, HEIGHT);
 
     drawVisualizer(0, 0, WIDTH/3, HEIGHT, Matt);
     drawVisualizer(WIDTH/3, 0, WIDTH/3, HEIGHT, Daniel);
