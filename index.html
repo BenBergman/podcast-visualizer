@@ -24,7 +24,6 @@ body {
   <img id="daniel-gray" src="daniel-gray.png">
   <img id="matt" src="matt.png">
   <img id="matt-gray" src="matt-gray.png">
-  <img id="backdrop" src="backdrop.png">
 </div>
 
 
@@ -168,8 +167,8 @@ var capturer = new CCapture( {
 function draw() {
     drawVisual = requestAnimationFrame(draw);
 
-    var backdrop = document.getElementById("backdrop");
-    canvasCtx.drawImage(backdrop, 0, 0, WIDTH, HEIGHT);
+    canvasCtx.fillStyle = "rgb(0, 255, 0)";
+    canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
     drawVisualizer(0, 0, WIDTH/3, HEIGHT, Matt);
     drawVisualizer(WIDTH/3, 0, WIDTH/3, HEIGHT, Daniel);
